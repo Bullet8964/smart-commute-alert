@@ -1,0 +1,38 @@
+name: Smart Commute Alert
+
+on:
+  workflow_dispatch:
+
+  # GitHub Actions 使用 UTC。
+  # 台灣平日上午 07:00 = UTC 前一天 23:00。
+  # 0-4 = 星期日到星期四 UTC，對應台灣星期一到星期五。
+  schedule:
+    - cron: "0 23 * * 0-4"
+
+jobs:
+  smart-commute:
+    runs-on: ubuntu-latest
+
+    env:
+      LOCATION_NAME: 桃園市
+      LATITUDE: "24.99368"
+      LONGITUDE: "121.30142"
+      TIMEZONE: Asia/Taipei
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run smart commute alert
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python smart_commute.py
